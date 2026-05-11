@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Symdy</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app">
+  <!-- Status bar -->
+  <div id="status-bar">
+    <span id="status-dot" class="dot-disconnected"></span>
+    <span id="status-text">Connecting...</span>
+  </div>
+
+  <!-- Messages -->
+  <div id="messages"></div>
+
+  <!-- Input -->
+  <div id="input-area">
+    <textarea id="input" placeholder="Ask anything..." rows="1"></textarea>
+    <button id="send-btn" title="Send (Enter)">↑</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

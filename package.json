@@ -1,0 +1,23 @@
+{
+  "name": "symdy",
+  "version": "0.1.0",
+  "description": "Symdy — Your AI companion. A persistent cognitive dyad.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:mac": "electron-builder --mac",
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux"
+  },
+  "build": {
+    "appId": "dev.symdy.app",
+    "productName": "Symdy",
+    "files": ["main.js", "preload.js", "renderer/**/*", "assets/**/*"],
+    "mac": { "target": "dmg" },
+    "win": { "target": "nsis" },
+    "linux": { "target": "AppImage" }
+  },
+  "dependencies": {
+    "electron": "^39.2.3"
+  }
+}
