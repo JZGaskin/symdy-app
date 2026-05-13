@@ -7,17 +7,42 @@
     "start": "electron .",
     "build:mac": "electron-builder --mac",
     "build:win": "electron-builder --win",
-    "build:linux": "electron-builder --linux"
+    "build:linux": "electron-builder --linux",
+    "build:all": "electron-builder --linux --win --mac",
+    "build:ci": "electron-builder --linux --publish=never"
   },
   "build": {
     "appId": "dev.symdy.app",
     "productName": "Symdy",
-    "files": ["main.js", "preload.js", "renderer/**/*", "assets/**/*"],
-    "mac": { "target": "dmg" },
-    "win": { "target": "nsis" },
-    "linux": { "target": "AppImage" }
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*",
+      "assets/**/*"
+    ],
+    "extraFiles": [
+      "assets/icon-*.png"
+    ],
+    "icon": "assets/icon-512.png",
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon-512.png",
+      "category": "public.app-category.productivity"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon-512.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon-256.png",
+      "category": "Utility"
+    }
   },
-  "dependencies": {
-    "electron": "^39.2.3"
+  "author": "Symdy <dev@symdy.app>",
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^39.2.3",
+    "electron-builder": "^26.8.1"
   }
 }
