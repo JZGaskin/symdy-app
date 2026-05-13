@@ -11,6 +11,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LANDING="$SCRIPT_DIR/index.html"
+SITEMAP="$SCRIPT_DIR/sitemap.xml"
+ROBOTS="$SCRIPT_DIR/robots.txt"
 SUBDOMAIN="${1:-symdy-app}"
 
 if [ ! -f "$LANDING" ]; then
@@ -21,6 +23,8 @@ fi
 # Prepare deploy directory
 DEPLOY_DIR=$(mktemp -d)
 cp "$LANDING" "$DEPLOY_DIR/index.html"
+cp "$SITEMAP" "$DEPLOY_DIR/sitemap.xml" 2>/dev/null || echo "⚠️ sitemap.xml not found, skipping"
+cp "$ROBOTS" "$DEPLOY_DIR/robots.txt" 2>/dev/null || echo "⚠️ robots.txt not found, skipping"
 
 # Simple 404 redirect
 cat << 'EOF' > "$DEPLOY_DIR/404.html"
@@ -31,6 +35,7 @@ echo ""
 echo "🚀 Deploying Symdy landing page..."
 echo "   Source: $LANDING"
 echo "   Target: https://$SUBDOMAIN.surge.sh"
+echo "   Files: index.html, sitemap.xml, robots.txt, 404.html"
 echo ""
 
 npx surge --project "$DEPLOY_DIR" --domain "${SUBDOMAIN}.surge.sh"
@@ -39,8 +44,8 @@ echo ""
 echo "✅ Done! Symdy is live at: https://$SUBDOMAIN.surge.sh"
 echo ""
 echo "📋 Reminders:"
-echo "   1. Push the v0.1.0 tag to GitHub to trigger the release build"
-echo "      → git push origin v0.1.0"
-echo "   2. Update download links on the landing page after release is live"
+echo "   1. Push a new tag (e.g., v0.1.2) to GitHub to trigger CI release build"
+echo "      → git tag v0.1.2 && git push origin v0.1.2"
+echo "   2. Submit Symdy to AlternativeTo: https://alternativeto.net/submit/"
 echo "   3. Post to social channels with the URL"
 echo ""

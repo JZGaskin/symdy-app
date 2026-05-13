@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://symdy-app.surge.sh/sitemap.xml

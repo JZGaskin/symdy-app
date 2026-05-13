@@ -35,8 +35,8 @@ jobs:
           du -sh node_modules/ node_modules/electron/dist/ 2>/dev/null || true
       - name: Build AppImage
         run: |
-          echo "Starting electron-builder..."
-          node node_modules/electron-builder/cli.js --linux 2>&1 || {
+          echo "Starting electron-builder with --publish=never..."
+          node node_modules/electron-builder/cli.js --linux --publish=never 2>&1 || {
             echo "=== Build failed! Debug info: ==="
             echo "=== dist/ contents: ==="
             ls -la dist/ 2>/dev/null || echo "no dist/"
@@ -46,8 +46,6 @@ jobs:
             df -h /
             exit 1
           }
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/upload-artifact@v4
         with:
           name: symdy-linux
