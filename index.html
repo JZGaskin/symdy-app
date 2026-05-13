@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Symdy — Your AI Companion with Persistent Memory</title>
+  <meta name="description" content="Symdy is a desktop AI companion that remembers everything. Built on the pi agent framework. Privacy-first, local-first, persistent.">
+  <meta name="keywords" content="AI companion, memory, pi agent, desktop app, electron, AI assistant, persistent memory">
+  <meta property="og:title" content="Symdy — Your AI Companion with Persistent Memory">
+  <meta property="og:description" content="Symdy is a desktop AI companion that remembers everything. Persistent memory, private by design, always learning from you.">
+  <meta property="og:url" content="https://symdy-app.surge.sh">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Symdy">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Symdy — Your AI Companion with Persistent Memory">
+  <meta name="twitter:description" content="A desktop AI companion that remembers everything across sessions. Private, local, persistent.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+  <link rel="canonical" href="https://symdy-app.surge.sh">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Symdy",
+    "applicationCategory": "AI Companion",
+    "operatingSystem": "Linux, macOS, Windows",
+    "description": "Desktop AI companion with persistent memory. Built on the pi agent framework. Privacy-first, local-first.",
+    "url": "https://symdy-app.surge.sh",
+    "author": {
+      "@type": "Person",
+      "name": "JZ Gaskin"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+  <script defer data-domain="symdy-app.surge.sh" src="https://plausible.io/js/script.js"></script>
+  <style>
+    :root {
+      --bg: #080810;
+      --surface: #0e0e1e;
+      --surface-hover: #161630;
+      --text: #e0e0f0;
+      --text-dim: #8888b0;
+      --text-muted: #55557a;
+      --accent: #7c8cf8;
+      --accent-glow: #9cabff;
+      --accent-soft: rgba(124, 140, 248, 0.1);
+      --border: #1a1a30;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      --mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .container { max-width: 800px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── Background Effect ── */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(ellipse at 30% 20%, rgba(124,140,248,0.03) 0%, transparent 50%),
+                  radial-gradient(ellipse at 70% 80%, rgba(0,212,170,0.02) 0%, transparent 50%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* ── Navigation ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 60px;
+    }
+    .logo {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+    .logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 32px; }
+    .nav-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── Hero ── */
+    #hero {
+      padding: 60px 0 80px;
+      text-align: center;
+    }
+    #hero h1 {
+      font-size: 48px;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 20px;
+      letter-spacing: -1px;
+    }
+    #hero h1 span { 
+      background: linear-gradient(135deg, var(--accent), var(--accent-glow));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    #hero p {
+      font-size: 18px;
+      color: var(--text-dim);
+      max-width: 560px;
+      margin: 0 auto 36px;
+    }
+    .hero-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 100px;
+      background: var(--accent-soft);
+      border: 1px solid rgba(124,140,248,0.2);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 24px;
+    }
+    .cta-buttons { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--accent-glow); transform: translateY(-1px); }
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { background: var(--surface-hover); border-color: var(--text-dim); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-dim);
+      padding: 14px 20px;
+    }
+    .btn-ghost:hover { color: var(--text); }
+
+    /* ── Features ── */
+    #features {
+      padding: 80px 0;
+      border-top: 1px solid var(--border);
+    }
+    .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    #features h2 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 48px;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      transition: all 0.2s;
+    }
+    .feature-card:hover {
+      border-color: var(--accent);
+      background: var(--surface-hover);
+    }
+    .feature-icon {
+      font-size: 28px;
+      margin-bottom: 16px;
+    }
+    .feature-card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .feature-card p {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.55;
+    }
+
+    /* ── How It Works ── */
+    #how-it-works {
+      padding: 80px 0;
+      border-top: 1px solid var(--border);
+    }
+    #how-it-works h2 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 48px;
+    }
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+    .step {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+    .step-number {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--accent-soft);
+      border: 1px solid rgba(124,140,248,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--accent);
+    }
+    .step-content h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .step-content p {
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+
+    /* ── Pricing ── */
+    #pricing {
+      padding: 80px 0;
+      border-top: 1px solid var(--border);
+    }
+    #pricing h2 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    #pricing > .container > p {
+      color: var(--text-dim);
+      margin-bottom: 48px;
+    }
+    .pricing-cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+    .pricing-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 36px 32px;
+      position: relative;
+    }
+    .pricing-card.featured {
+      border-color: var(--accent);
+      background: linear-gradient(135deg, var(--surface) 0%, rgba(124,140,248,0.05) 100%);
+    }
+    .pricing-card.featured::before {
+      content: 'Popular';
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 3px 16px;
+      border-radius: 100px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .pricing-name {
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .pricing-price {
+      font-size: 40px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .pricing-price span {
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--text-dim);
+    }
+    .pricing-desc {
+      color: var(--text-dim);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    .pricing-features {
+      list-style: none;
+      margin-bottom: 28px;
+    }
+    .pricing-features li {
+      padding: 6px 0;
+      font-size: 14px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pricing-features li::before { content: '✓'; color: var(--accent); font-weight: 700; }
+    .pricing-features li.missing { color: var(--text-muted); }
+    .pricing-features li.missing::before { content: '—'; color: var(--text-muted); }
+    .pricing-card .btn { width: 100%; justify-content: center; }
+
+    /* ── Download ── */
+    #download {
+      padding: 80px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    #download h2 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    #download p {
+      color: var(--text-dim);
+      max-width: 480px;
+      margin: 0 auto 40px;
+    }
+    .download-grid {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .download-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 32px;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.2s;
+      min-width: 160px;
+    }
+    .download-card:hover {
+      border-color: var(--accent);
+      background: var(--surface-hover);
+      transform: translateY(-2px);
+    }
+    .download-card .os-icon { font-size: 28px; margin-bottom: 8px; }
+    .download-card .os-name { font-size: 14px; font-weight: 600; }
+    .download-card .os-size { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+    /* ── FAQ ── */
+    #faq {
+      padding: 80px 0;
+      border-top: 1px solid var(--border);
+    }
+    #faq h2 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 32px;
+    }
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 0;
+    }
+    .faq-question {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .faq-answer {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    footer p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    footer a {
+      color: var(--text-dim);
+      text-decoration: none;
+    }
+    footer a:hover { color: var(--accent); }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      #hero h1 { font-size: 32px; }
+      .features-grid { grid-template-columns: 1fr; }
+      .pricing-cards { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      #hero { padding: 40px 0 60px; }
+      #features, #how-it-works, #pricing, #download, #faq { padding: 60px 0; }
+      .step { flex-direction: column; gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="container">
+  <div class="logo">symdy<span>.</span></div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#download">Download</a>
+    <a href="#faq">FAQ</a>
+  </div>
+</nav>
+
+<!-- ── Hero ── -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-badge">v0.1.5 — Desktop AI Companion</div>
+    <h1>An AI companion that<br><span>remembers everything</span></h1>
+    <p>
+      Symdy is a desktop AI companion built on the pi agent framework. 
+      Persistent memory, private by design, always learning from you.
+    </p>
+    <div class="cta-buttons">
+      <a href="#download" class="btn btn-primary">↓ Download for Free</a>
+      <a href="#features" class="btn btn-secondary">Learn More</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Features ── -->
+<section id="features">
+  <div class="container">
+    <div class="section-label">Features</div>
+    <h2>What makes Symdy different</h2>
+    <div class="features-grid">
+
+      <div class="feature-card">
+        <div class="feature-icon">🧠</div>
+        <h3>Persistent Memory</h3>
+        <p>Symdy remembers everything you tell it — across sessions, across weeks. No reset, no context window limits. It learns who you are.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3>Private by Design</h3>
+        <p>Everything runs locally on your machine. Your conversations, your memories — they stay with you. No cloud dependency, no data harvesting.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Powered by pi</h3>
+        <p>Built on the pi agent framework — the same autonomous agent that powers Earnie. Symdy inherits pi's tool use, coding, and reasoning capabilities.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <h3>Grows With You</h3>
+        <p>The more you use Symdy, the better it understands your context, preferences, and work patterns. It becomes more useful every day.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── How It Works ── -->
+<section id="how-it-works">
+  <div class="container">
+    <div class="section-label">How It Works</div>
+    <h2>From download to dyad in 3 steps</h2>
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>Download & Launch</h3>
+          <p>Grab the AppImage (Linux), DMG (macOS), or installer (Windows). Open it — no installation required on most systems.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Connect to pi</h3>
+          <p>Symdy automatically connects to your local pi agent. If pi isn't installed, the app walks you through it in under a minute.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Start the conversation</h3>
+          <p>Ask anything. Symdy remembers your preferences, your projects, your context. Every session picks up where the last one left off.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Pricing ── -->
+<section id="pricing">
+  <div class="container">
+    <div class="section-label">Pricing</div>
+    <h2>Freemium. No tricks.</h2>
+    <p>The free tier is fully functional. Premium unlocks advanced features for power users.</p>
+    <div class="pricing-cards">
+
+      <div class="pricing-card">
+        <div class="pricing-name">Free</div>
+        <div class="pricing-price">$0 <span>forever</span></div>
+        <div class="pricing-desc">Everything you need for daily use.</div>
+        <ul class="pricing-features">
+          <li>Persistent memory</li>
+          <li>Full chat interface</li>
+          <li>Local privacy</li>
+          <li>All pi capabilities</li>
+          <li class="missing">Priority support</li>
+          <li class="missing">Early access to new features</li>
+        </ul>
+        <a href="#download" class="btn btn-primary">Download Free</a>
+      </div>
+
+      <div class="pricing-card featured">
+        <div class="pricing-name">Premium</div>
+        <div class="pricing-price">$5 <span>/month</span></div>
+        <div class="pricing-desc">For users who want more from their companion.</div>
+        <ul class="pricing-features">
+          <li>Everything in Free</li>
+          <li>Priority support</li>
+          <li>Early access to new features</li>
+          <li>Influence the roadmap</li>
+          <li>Custom memory categories</li>
+          <li>Multi-workspace support</li>
+        </ul>
+        <a href="#" class="btn btn-primary">Coming Soon</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Download ── -->
+<section id="download">
+  <div class="container">
+    <div class="section-label">Download</div>
+    <h2>Get Symdy v0.1.8</h2>
+    <p>Choose your platform. The app is portable — no installer needed for Linux and macOS.</p>
+    <div class="download-grid">
+
+      <a href="https://github.com/JZGaskin/symdy-app/releases/download/v0.1.8/Symdy-0.1.5.AppImage" class="download-card" target="_blank" rel="noopener">
+        <div class="os-icon">🐧</div>
+        <div class="os-name">Linux</div>
+        <div class="os-size">AppImage ~110 MB</div>
+      </a>
+
+      <a href="https://github.com/JZGaskin/symdy-app/releases" class="download-card" target="_blank" rel="noopener" style="opacity:0.5;pointer-events:none;">
+        <div class="os-icon">🍎</div>
+        <div class="os-name">macOS</div>
+        <div class="os-size">Coming soon</div>
+      </a>
+
+      <a href="https://github.com/JZGaskin/symdy-app/releases" class="download-card" target="_blank" rel="noopener" style="opacity:0.5;pointer-events:none;">
+        <div class="os-icon">🪟</div>
+        <div class="os-name">Windows</div>
+        <div class="os-size">Coming soon</div>
+      </a>
+
+    </div>
+    <p style="margin-top: 24px; font-size: 13px; color: var(--text-muted);">
+      ⚡ Linux AppImage available on 
+      <a href="https://github.com/JZGaskin/symdy-app/releases/tag/v0.1.8" style="color: var(--accent);" target="_blank">GitHub Releases (v0.1.8)</a>. macOS and Windows builds coming soon.
+      macOS and Windows builds coming soon.
+      You'll need 
+      <a href="https://github.com/JZGaskin/symdy-app#readme" style="color: var(--accent);" target="_blank">pi</a> installed globally to use Symdy.
+    </p>
+  </div>
+</section>
+
+<!-- ── FAQ ── -->
+<section id="faq">
+  <div class="container">
+    <div class="section-label">FAQ</div>
+    <h2>Common questions</h2>
+
+    <div class="faq-item">
+      <div class="faq-question">Do I need pi installed to use Symdy?</div>
+      <div class="faq-answer">Yes. Symdy is a desktop UI for the pi agent framework. You'll need pi installed globally (<code>npm install -g @earendil-works/pi-coding-agent</code>). The app connects to pi in RPC mode automatically.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Is my data private?</div>
+      <div class="faq-answer">Yes. Symdy connects to your local pi instance. No data leaves your machine unless you connect to a remote model provider (which you control). No cloud account, no telemetry.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">What's the difference between Free and Premium?</div>
+      <div class="faq-answer">The Free tier is fully functional with persistent memory and all core features. Premium ($5/month) adds priority support, early access to new features, custom memory management, and multi-workspace support — for users who want more control.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">How does the memory work?</div>
+      <div class="faq-answer">Symdy (via the Symdy memory system) stores structured facts about you across categories — professional, personal, preferences, projects, and more. Every conversation strengthens its understanding. You can review and manage what's stored.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Is this open source?</div>
+      <div class="faq-answer">The Symdy desktop app source is available on GitHub. The underlying pi agent framework is MIT-licensed open source.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="container">
+    <p>
+      <a href="https://github.com/JZGaskin/symdy-app" target="_blank" rel="noopener">GitHub</a>
+      &nbsp;·&nbsp;
+      <a href="mailto:dev@symdy.app">Contact</a>
+      &nbsp;·&nbsp;
+      Symdy v0.1.5 — built on <a href="https://github.com/earendil-works/pi-coding-agent" target="_blank" rel="noopener">pi</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
