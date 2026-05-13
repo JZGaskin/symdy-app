@@ -42,6 +42,13 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
+          merge-multiple: true
+      - name: List downloaded artifacts (debug)
+        run: |
+          echo "=== Artifact directory structure ==="
+          find artifacts -type f -ls 2>/dev/null || echo "No files found in artifacts/"
+          echo "=== dist/ contents ==="
+          ls -la dist/ 2>/dev/null || echo "No dist/ directory"
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
@@ -63,7 +70,8 @@ jobs:
             - ⏳ macOS — build in progress
             - ⏳ Windows — build in progress
           files: |
-            artifacts/symdy-linux/*.AppImage
+            artifacts/*.AppImage
+          fail_on_unmatched_files: true
           draft: false
           prerelease: false
         env:
