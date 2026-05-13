@@ -21,13 +21,12 @@ jobs:
             libatk-bridge2.0-0 libgtk-3-0 libdrm2 libgbm1 \
             fuse3 libfuse2 xdg-utils
       - run: npm ci
+      - name: Check disk space
+        run: df -h / && du -sh node_modules/ || true
       - name: Build AppImage
-        run: |
-          echo "Node version: $(node --version)"
-          echo "NPM version: $(npm --version)"
-          echo "electron-builder path: $(which electron-builder || echo 'not in PATH')"
-          ls -la node_modules/.bin/electron-builder 2>/dev/null || echo 'electron-builder bin not found'
-          npx --yes electron-builder --linux --verbose 2>&1 | tail -100
+        run: npm run build:linux
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/upload-artifact@v4
         with:
           name: symdy-linux
