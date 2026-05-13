@@ -28,8 +28,24 @@ jobs:
             node node_modules/electron/install.js
           fi
           ls -lh node_modules/electron/dist/electron
+      - name: Check disk space
+        run: |
+          echo "=== Disk space before build ==="
+          df -h /
+          du -sh node_modules/ node_modules/electron/dist/ 2>/dev/null || true
       - name: Build AppImage
-        run: npm run build:linux
+        run: |
+          echo "Starting electron-builder..."
+          node node_modules/electron-builder/cli.js --linux 2>&1 || {
+            echo "=== Build failed! Debug info: ==="
+            echo "=== dist/ contents: ==="
+            ls -la dist/ 2>/dev/null || echo "no dist/"
+            echo "=== node_modules/.cache contents: ==="
+            du -sh node_modules/.cache/ 2>/dev/null || echo "no cache"
+            echo "=== Disk space after failure: ==="
+            df -h /
+            exit 1
+          }
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/upload-artifact@v4
