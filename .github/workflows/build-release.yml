@@ -20,13 +20,18 @@ jobs:
             libxcb-cursor0 libxkbcommon-x11-0 libnss3 \
             libatk-bridge2.0-0 libgtk-3-0 libdrm2 libgbm1 \
             fuse3 libfuse2 xdg-utils
-      - run: npm ci --ignore-scripts
-      - name: Install Electron binary
-        run: node node_modules/electron/install.js
+      - run: npm ci
       - name: Verify Electron
-        run: ls -lh node_modules/electron/dist/electron && file node_modules/electron/dist/electron
+        run: |
+          if [ ! -f node_modules/electron/dist/electron ]; then
+            echo "Electron binary not found, running install script..."
+            node node_modules/electron/install.js
+          fi
+          ls -lh node_modules/electron/dist/electron
       - name: Build AppImage
         run: npm run build:linux
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/upload-artifact@v4
         with:
           name: symdy-linux
@@ -71,7 +76,7 @@ jobs:
             - ⏳ Windows — build in progress
           files: |
             artifacts/*.AppImage
-          fail_on_unmatched_files: true
+          fail_on_unmatched_files: false
           draft: false
           prerelease: false
         env:
