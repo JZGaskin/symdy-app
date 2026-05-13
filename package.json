@@ -27,7 +27,8 @@
     "mac": {
       "target": "dmg",
       "icon": "assets/icon-512.png",
-      "category": "public.app-category.productivity"
+      "category": "public.app-category.productivity",
+      "identity": null
     },
     "win": {
       "target": "nsis",
